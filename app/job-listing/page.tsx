@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import '@fontsource/press-start-2p';
+import TopBar from '@/components/Top-Bar';
 
 const jobs = [
   {
@@ -52,6 +53,7 @@ export default function JobListings() {
   const [selectedRecruiter, setSelectedRecruiter] = useState<Recruiter | null>(null);
   return (
     <div className="min-h-screen bg-yellow-50 font-['Press Start 2P'] text-gray-800">
+      <TopBar />
       <div className="flex flex-col items-center justify-start p-6">
         <h1 className="text-xl text-blue-900 mb-6 border-b-4 border-blue-900 pb-2 text-center">
           📃 JOB LISTINGS
