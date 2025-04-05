@@ -1,4 +1,4 @@
-# Self-Verified Job Platform
+# Trusted-Jobs
 
 ## 🔗 Quick Links
 
