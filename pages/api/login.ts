@@ -19,7 +19,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     try {
       const user = inMemoryDB.users.find((u: User) => u.email === email && u.password === password);
-
+      console.log("user", inMemoryDB.users);
       if (!user) {
         return res.status(401).json({ error: "Invalid email or password" });
       }

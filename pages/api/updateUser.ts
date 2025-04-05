@@ -2,9 +2,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import inMemoryDB from "../../utils/inMemoryDB";
 
 interface User {
+  id: number;
   name: string;
-  myJobs?: string[];
-  isVerified?: string[];
+  email: string;
+  password: string;
+  isVerified: string[];
+  riskLevel: string;
+  myJobs: number[];
+  myPosts: number[];
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -30,10 +35,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         ? Array.from(new Set([...(existingUser.isVerified || []), ...isVerified]))
         : existingUser.isVerified;
 
+      // 更新 riskLevel
+      const updatedRiskLevel = updatedIsVerified.includes("ofac") ? "LOW" : "MEDIUM";
+
       inMemoryDB.users[userIndex] = {
         ...existingUser,
         myJobs: updatedMyJobs,
         isVerified: updatedIsVerified,
+        riskLevel: updatedRiskLevel,
       };
 
       return res.status(200).json({ message: "User data updated successfully" });

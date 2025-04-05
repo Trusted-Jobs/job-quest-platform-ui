@@ -1,9 +1,34 @@
-interface InMemoryDB {
-  users: any[];
-  jobs: any[];
+// 如果全域變數已存在，則使用現有的，否則初始化
+declare global {
+  var inMemoryDB: {
+    users: Array<{
+      id: number;
+      name: string;
+      email: string;
+      password: string;
+      isVerified: string[];
+      riskLevel: string;
+      myJobs: number[];
+      myPosts: number[];
+    }>;
+    jobs: Array<{
+      id: number;
+      jobId: number;
+      title: string;
+      company: string;
+      location: string;
+      salary: string;
+      status: string;
+      recruiter: {
+        name: string;
+        riskLevel: string;
+        isVerified: string[];
+      };
+    }>;
+  };
 }
 
-const inMemoryDB: InMemoryDB = {
+globalThis.inMemoryDB = globalThis.inMemoryDB || {
   users: [
     {
       id: 1,
@@ -82,4 +107,4 @@ const inMemoryDB: InMemoryDB = {
   ],
 };
 
-export default inMemoryDB;
+export default globalThis.inMemoryDB;

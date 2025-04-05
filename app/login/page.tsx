@@ -15,6 +15,7 @@ export default function AuthButtons() {
     const password = (e.target as HTMLFormElement).password.value;
 
     if (isRegister) {
+      const name = ((e.target as HTMLFormElement).elements.namedItem("name") as HTMLInputElement).value;
       const confirmPassword = (e.target as HTMLFormElement).confirmPassword.value;
       if (password !== confirmPassword) {
         alert("❌ Password and Confirm Password do not match!");
@@ -25,7 +26,7 @@ export default function AuthButtons() {
         const res = await fetch("/api/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, name }),
         });
 
         if (res.ok) {
@@ -68,6 +69,17 @@ export default function AuthButtons() {
         onSubmit={handleSubmit}
         className="bg-white border-4 border-blue-900 p-6 rounded-none shadow-[6px_6px_0px_black] w-full max-w-sm space-y-4 text-[10px]"
       >
+        {isRegister && (
+          <div>
+            <label className="block mb-1">Name</label>
+            <input
+              type="text"
+              name="name"
+              className="w-full border-4 border-blue-900 rounded-none p-2 bg-gray-100 shadow-[2px_2px_0px_black]"
+              placeholder="Your Name"
+            />
+          </div>
+        )}
         <div>
           <label className="block mb-1">Email</label>
           <input

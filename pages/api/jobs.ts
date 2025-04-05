@@ -12,15 +12,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   } else if (req.method === "POST") {
     try {
       const recruiterName = req.cookies.name || "Unknown Recruiter";
-      const recruiter = inMemoryDB.users.find((user: { email: string }) => user.email === recruiterName) || {};
+      const recruiter = inMemoryDB.users.find((user: { name:string; email: string; riskLevel?: string; isVerified: string[] }) => user.name === recruiterName) || { riskLevel: "HIGH", isVerified: [] };
 
       const job = { 
         ...req.body, 
         status: "new", 
         recruiter: { 
           name: recruiterName,
-          risk: recruiter.risk || "HIGH",
-          isVerified: recruiter.isVerified || []
+          risk: recruiter.riskLevel,
+          isVerified: recruiter.isVerified
         }
       };
 

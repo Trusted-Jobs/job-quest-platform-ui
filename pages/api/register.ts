@@ -3,7 +3,7 @@ import inMemoryDB from "../../utils/inMemoryDB";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     try {
       const existingUser = inMemoryDB.users.find((u: { email: string }) => u.email === email);
@@ -13,9 +13,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
       }
 
-      // 新增使用者資料
-      inMemoryDB.users.push({ email, password, isVerify: [], riskLevel: "HIGH", myJobs: [], myPosts: [] });
-
+      const newUser = {
+        id: inMemoryDB.users.length + 1,
+        name: name as string,
+        email: email as string,
+        password: password as string,
+        isVerified: [] as string[],
+        riskLevel: "HIGH",
+        myJobs: [] as number[],
+        myPosts: [] as number[],
+      };
+      inMemoryDB.users.push(newUser);
       res.status(201).json({ message: "Registration successful!" });
     } catch (error) {
       console.error(error);
