@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from "react";
 import "@fontsource/press-start-2p";
 import TopBar from "@/components/Top-Bar";
+import { ethers } from "ethers";
+import { abi } from "../content/abi";
+import { getCookie } from "cookies-next";
 
 export default function JobListings() {
   type Recruiter = {
@@ -30,6 +33,59 @@ export default function JobListings() {
       .then((data) => setJobs(data));
   }, []);
 
+  const handleApply = async (jobId: number) => {
+    try {
+      if (!window.ethereum) {
+        alert("Please install MetaMask wallet!");
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum!);
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+
+      console.log("User address:", userAddress);
+
+      const contractAddress = process.env.CONTRACT_ADDRESS || "0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036"; // Replace with actual contract address
+      if (!contractAddress) {
+        alert("Contract address is not set. Please check your environment variables!");
+        return;
+      }
+
+      const contract = new ethers.Contract(contractAddress, abi, signer);
+      const result = await contract.applyJob(jobId);
+
+      console.log("Transaction result:", result);
+
+      // Get user name from cookies using cookies-next
+      const userName = getCookie("userName");
+      if (!userName || typeof userName !== "string") {
+        throw new Error("User name not found in cookies");
+      }
+
+      // Call updateUser API to store the jobId in the user's myJobs array
+      const updateResponse = await fetch("/api/updateUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: userName,
+          myJobs: [jobId],
+        }),
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error("Failed to update user data");
+      }
+
+      alert("🎉 Application successful!");
+    } catch (error) {
+      console.error("Application failed:", error);
+      alert("❌ Application failed. This job has already been applied.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-yellow-50 font-['Press Start 2P'] text-gray-800">
       <TopBar />
@@ -51,7 +107,10 @@ export default function JobListings() {
               <p className="text-gray-800">
                 👤 Recruiter: <button onClick={() => setSelectedRecruiter(job.recruiter)} className="underline text-blue-700 hover:text-blue-900">{job.recruiter.name}</button>
               </p>
-              <button className="mt-4 bg-blue-900 text-white py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800">
+              <button
+                onClick={() => handleApply(job.id)}
+                className="mt-4 bg-blue-900 text-white py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800"
+              >
                 🎯 APPLY
               </button>
             </div>
