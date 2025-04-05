@@ -43,7 +43,7 @@ A decentralized job platform that protects job seekers by enforcing recruiter id
 
 ### 🎯 Smart Contract Logic (JobEscrow.sol)
 
-[Celo Mainnet]()
+[Celo Mainnet](https://celo.blockscout.com/address/0x0E6be64199930b1aa1AF03C89ed7245A97d1f1Ad?tab=contract)
 
 [Celo Alfajores Testnet](https://celo-alfajores.blockscout.com/address/0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036?tab=contract)
 
