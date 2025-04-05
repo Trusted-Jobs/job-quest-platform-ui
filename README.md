@@ -103,14 +103,14 @@ This project uses Self.ID Protocol to verify recruiters:
 
 - Funds Deposit Interface
 
-#### 💡 Future Improvements
+<hr>
+
+### 💡 Future Improvements
 
 - On-chain job application mechanism
 
 - Decentralized arbitration DAO
 
 - Reputation scoring using on-chain history
-
-<hr>
 
 #### Made by Jon Wang & Ben Shen
