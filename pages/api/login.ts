@@ -21,7 +21,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       const user = inMemoryDB.users.find((u: User) => u.email === email && u.password === password);
       console.log("user", inMemoryDB.users);
       if (!user) {
-        return res.status(401).json({ error: "Invalid email or password" });
+        return res.status(401).json({ message: "Invalid email or password" });
       }
 
       setCookie("name", user.name, { req, res });
@@ -31,7 +31,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(200).json({ message: "Login successful" });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: "Failed to login" });
+      return res.status(500).json({ message: "Failed to login" });
     }
   } else {
     res.setHeader("Allow", ["POST"]);
