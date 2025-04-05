@@ -9,6 +9,7 @@ export default function TopBar() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   useEffect(() => {
     const isVerifiedLength = parseInt(document.cookie.replace(/(?:(?:^|.*;\s*)isVerifiedLength\s*\=\s*([^;]*).*$)|^.*$/, "$1")) || 0;
@@ -27,6 +28,23 @@ export default function TopBar() {
     } catch (error) {
       console.error("Logout error:", error);
       alert("An error occurred during logout");
+    }
+  };
+
+  const connectWallet = async () => {
+    try {
+      if (!window.ethereum) {
+        alert("MetaMask is not installed!");
+        return;
+      }
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setWalletAddress(accounts[0]);
+      alert(`🔗 Connected to wallet: ${accounts[0]}`);
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to connect wallet. Please try again.");
     }
   };
 
@@ -80,13 +98,22 @@ export default function TopBar() {
           </button>
         </div>
 
-        {/* 登出按鈕 */}
-        <button
-          onClick={handleLogout}
-          className="bg-red-700 text-white px-3 py-2 border-4 border-black rounded-none shadow-[2px_2px_0px_black] hover:bg-red-600 text-[9px]"
-        >
-          🔓 Logout
-        </button>
+        {/* 登出與連接錢包按鈕 */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={connectWallet}
+            disabled={!!walletAddress}
+            className="bg-blue-900 text-white px-3 py-2 border-4 border-black rounded-none shadow-[2px_2px_0px_black] hover:bg-blue-800 disabled:opacity-50 text-[9px]"
+          >
+            🔗 Connect Wallet
+          </button>
+          <button
+            onClick={handleLogout}
+            className="bg-red-700 text-white px-3 py-2 border-4 border-black rounded-none shadow-[2px_2px_0px_black] hover:bg-red-600 text-[9px]"
+          >
+            🔓 Logout
+          </button>
+        </div>
       </div>
 
       {/* 手機選單項目展開 */}

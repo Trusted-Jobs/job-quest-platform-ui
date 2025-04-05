@@ -6,6 +6,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     deleteCookie("email", { req, res });
     deleteCookie("name", { req, res });
     deleteCookie("isVerifiedLength", { req, res });
+    deleteCookie("disclosures", { req, res });
 
     return res.status(200).json({ message: "Logout successful" });
   } else {

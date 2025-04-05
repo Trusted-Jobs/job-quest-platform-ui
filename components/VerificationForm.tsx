@@ -16,8 +16,9 @@ export default function VerificationForm() {
         name: "",
         disclosures: {
             nationality: false,
-            age: false,
-            sanctioned: false,
+            minimumAge: 18,
+            ofac: false,
+            name: true,
         },
     });
     const [selfApp, setSelfApp] = useState<SelfApp | null>(null);
@@ -32,7 +33,7 @@ export default function VerificationForm() {
         const selfApp = new SelfAppBuilder({
             appName: "Verification Platform",
             scope: "job-quest-platform-ui",
-            endpoint: "https://job-quest-platform-ui.vercel.app/api/verify",
+            endpoint: "https://trusted-jobs-ui.vercel.app/api/verify",
             logoBase64: "https://i.imgur.com/Rz8B3s7.png",
             userId: uuidv4(),
             disclosures: form.disclosures,
@@ -47,7 +48,9 @@ export default function VerificationForm() {
             ...prevForm,
             disclosures: {
                 ...prevForm.disclosures,
-                [field]: !prevForm.disclosures[field as keyof typeof prevForm.disclosures],
+                [field]: field === "minimumAge" 
+                    ? { minimumAge: 18 }
+                    : !prevForm.disclosures[field as keyof typeof prevForm.disclosures],
             },
         }));
     };
@@ -103,14 +106,14 @@ export default function VerificationForm() {
                             <div key={key}>
                                 <input
                                     type="checkbox"
-                                    checked={form.disclosures[key as keyof typeof form.disclosures]}
+                                    checked={!!form.disclosures[key as keyof typeof form.disclosures]}
                                     onChange={() => handleDisclosureChange(key)}
                                     className="mr-2"
                                 />
                                 <label>
                                     {key === "nationality" && "🌍 Nationality"}
-                                    {key === "age" && "🎂 Age"}
-                                    {key === "sanctioned" && "⚠️ Sanctioned"}
+                                    {key === "minimumAge" && "🎂 Age more than 18"}
+                                    {key === "ofac" && "⚠️ OFAC Sanctioned"}
                                 </label>
                             </div>
                         ))}

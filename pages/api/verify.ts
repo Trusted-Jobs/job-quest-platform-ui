@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const selfdVerifier = new SelfBackendVerifier(
                 'https://forno.celo.org',
                 "job-quest-platform-ui",
-                "https://job-quest-platform-ui.vercel.app/api/verify",
+                "https://trusted-jobs-ui.vercel.app/api/verify",
                 "hex",
                 true // If you want to use mock passport
             );

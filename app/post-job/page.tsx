@@ -20,25 +20,7 @@ export default function PostJob() {
   const [isTransferred, setIsTransferred] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
-
-  const connectWallet = async () => {
-    try {
-      if (!window.ethereum) {
-        alert("MetaMask is not installed!");
-        return;
-      }
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      setWalletAddress(accounts[0]);
-      alert(`🔗 Connected to wallet: ${accounts[0]}`);
-    } catch (error) {
-      console.error(error);
-      alert("❌ Failed to connect wallet. Please try again.");
-    }
-  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -49,11 +31,6 @@ export default function PostJob() {
   };
 
   const handleTransferApi = async () => {
-    if (!walletAddress) {
-      alert("Please connect your wallet first!");
-      return;
-    }
-
     const contractAddress = process.env.CONTRACT_ADDRESS || "0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036";
     if (!contractAddress) {
       alert("Contract address is not set. Please check your environment variables.");
@@ -212,19 +189,11 @@ export default function PostJob() {
 
           {/* Token transfer & verify buttons */}
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-            {/* Connect Wallet Button */}
-            <button
-              onClick={connectWallet}
-              disabled={!!walletAddress}
-              className="bg-blue-900 text-white py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800 disabled:opacity-50"
-            >
-              🔗 Connect Wallet
-            </button>
-
+            {/* Removed Connect Wallet button */}
             <button
               type="button"
               onClick={handleTransferApi}
-              disabled={!walletAddress || isTransferring || isTransferred}
+              disabled={ isTransferring || isTransferred}
               className="bg-blue-900 text-white py-3 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800 disabled:opacity-50"
             >
               {isTransferring
