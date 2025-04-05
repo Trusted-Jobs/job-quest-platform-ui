@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@fontsource/press-start-2p": "^5.2.5",
+    "@selfxyz/core": "^0.0.19",
+    "@selfxyz/qrcode": "^0.0.17",
     "cookies-next": "^5.1.0",
     "next": "15.2.4",
     "react": "^19.0.0",
