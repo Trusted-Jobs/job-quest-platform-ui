@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
-import SelfQRcodeWrapper, { SelfApp, SelfAppBuilder } from "@selfxyz/qrcode";
+import { SelfApp, SelfAppBuilder } from "@selfxyz/qrcode";
 import ClientQRWrapper from "@/components/ClientQRWrapper";
 
 export default function VerificationForm() {
@@ -46,7 +46,7 @@ export default function VerificationForm() {
             disclosures: {
                 ...prevForm.disclosures,
                 [field]: field === "minimumAge" 
-                    ? { minimumAge: 18 }
+                    ? 18
                     : !prevForm.disclosures[field as keyof typeof prevForm.disclosures],
             },
         }));
