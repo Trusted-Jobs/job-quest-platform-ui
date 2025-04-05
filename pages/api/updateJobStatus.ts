@@ -4,17 +4,16 @@ import inMemoryDB from "@/utils/inMemoryDB";
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     const { jobId, status } = req.body;
-
-    if (typeof jobId !== "number" || typeof status !== "string") {
-      return res.status(400).json({ error: "Invalid jobId or status" });
-    }
+    // if (typeof jobId !== "number" || typeof status !== "string") {
+    //   return res.status(400).json({ error: "Invalid jobId or status" });
+    // }
 
     // Find the job in inMemoryDB
-    const jobIndex = inMemoryDB.jobs.findIndex((job) => job.jobId === jobId);
+    const jobIndex = inMemoryDB.jobs.findIndex((job) => job.jobId == jobId);
     if (jobIndex === -1) {
       return res.status(404).json({ error: "Job not found" });
     }
-
+    console.log('status', status);
     // Update the job status
     inMemoryDB.jobs[jobIndex] = {
       ...inMemoryDB.jobs[jobIndex],

@@ -16,6 +16,7 @@ export default function JobListings() {
   };
 
   type Job = {
+    jobId: number;
     id: number;
     title: string;
     company: string;
@@ -44,7 +45,7 @@ export default function JobListings() {
         alert("Please install MetaMask wallet!");
         return;
       }
-
+      console.log('jobId', jobId);
       const provider = new ethers.BrowserProvider(window.ethereum!);
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
@@ -63,7 +64,7 @@ export default function JobListings() {
       console.log("Transaction result:", result);
 
       // Get user name from cookies using cookies-next
-      const userName = getCookie("userName");
+      const userName = getCookie("name");
       if (!userName || typeof userName !== "string") {
         throw new Error("User name not found in cookies");
       }
@@ -189,7 +190,7 @@ export default function JobListings() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl text-[10px]">
           {jobs.map((job) => (
             <div
-              key={job.id}
+              key={job.jobId}
               className="bg-white border-4 border-blue-900 p-4 rounded-none shadow-[4px_4px_0px_black]"
             >
               <h2 className="text-blue-900 mb-2">💼 {job.title}</h2>
@@ -203,13 +204,13 @@ export default function JobListings() {
                 job.status === "completed" && (
                   <div className="mt-4 flex gap-4">
                     <button
-                      onClick={() => handleArbitrate(job.id, "slashToRecruiter")}
+                      onClick={() => handleArbitrate(job.jobId, "slashToRecruiter")}
                       className="py-2 px-4 bg-green-500 text-white border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-green-400"
                     >
                       💰 Refund to Recruiter
                     </button>
                     <button
-                      onClick={() => handleArbitrate(job.id, "slashToApplicant")}
+                      onClick={() => handleArbitrate(job.jobId, "slashToApplicant")}
                       className="py-2 px-4 bg-red-500 text-white border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-red-400"
                     >
                       💰 Pay to Applicant
@@ -218,7 +219,7 @@ export default function JobListings() {
                 )
               ) : (
                 <button
-                  onClick={() => handleApply(job.id)}
+                  onClick={() => handleApply(job.jobId)}
                   disabled={job.status !== "new"} // Disable button if status is not "new"
                   className={`mt-4 py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] ${
                     job.status === "new"

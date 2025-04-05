@@ -14,7 +14,7 @@ interface User {
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
-    const { name, myJobs, isVerified } = req.body;
+    const { name, myJobs, isVerified, myPosts } = req.body;
 
     try {
       const userIndex = inMemoryDB.users.findIndex((user: User) => user.name === name);
@@ -35,6 +35,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         ? Array.from(new Set([...(existingUser.isVerified || []), ...isVerified]))
         : existingUser.isVerified;
 
+      // 更新 myPosts
+      const updatedMyPosts = myPosts
+        ? Array.from(new Set([...(existingUser.myPosts || []), ...myPosts]))
+        : existingUser.myPosts;
+
       // 更新 riskLevel
       const updatedRiskLevel = updatedIsVerified.includes("ofac") ? "LOW" : "MEDIUM";
       console.log("Updated risk level:", updatedRiskLevel);
@@ -43,6 +48,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         ...existingUser,
         myJobs: updatedMyJobs,
         isVerified: updatedIsVerified,
+        myPosts: updatedMyPosts,
         riskLevel: updatedRiskLevel,
       };
 
