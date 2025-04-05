@@ -57,7 +57,7 @@ export default function VerificationForm() {
             const isVerified = Object.keys(data.disclosures).filter(
                 (key) => data.disclosures[key as keyof typeof data.disclosures]
             );
-
+            console.log("isVerified", isVerified);
             const response = await fetch("/api/updateUser", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

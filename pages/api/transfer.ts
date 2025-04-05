@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const { signedTransaction } = req.body;
 
-      const provider = new ethers.JsonRpcProvider(process.env.JSON_RPC_PROVIDER || "https://alfajores-forno.celo-testnet.org");
+      const provider = new ethers.JsonRpcProvider(process.env.JSON_RPC_PROVIDER || "https://forno.celo.org");
 
       const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || "", provider);
       const txResponse = await wallet.sendTransaction(signedTransaction);

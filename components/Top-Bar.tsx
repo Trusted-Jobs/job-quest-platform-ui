@@ -101,13 +101,6 @@ export default function TopBar() {
         {/* 登出與連接錢包按鈕 */}
         <div className="flex items-center gap-2">
           <button
-            onClick={connectWallet}
-            disabled={!!walletAddress}
-            className="bg-blue-900 text-white px-3 py-2 border-4 border-black rounded-none shadow-[2px_2px_0px_black] hover:bg-blue-800 disabled:opacity-50 text-[9px]"
-          >
-            🔗 Connect Wallet
-          </button>
-          <button
             onClick={handleLogout}
             className="bg-red-700 text-white px-3 py-2 border-4 border-black rounded-none shadow-[2px_2px_0px_black] hover:bg-red-600 text-[9px]"
           >

@@ -37,6 +37,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
       // 更新 riskLevel
       const updatedRiskLevel = updatedIsVerified.includes("ofac") ? "LOW" : "MEDIUM";
+      console.log("Updated risk level:", updatedRiskLevel);
 
       inMemoryDB.users[userIndex] = {
         ...existingUser,

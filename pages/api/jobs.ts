@@ -19,13 +19,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         status: "new", 
         recruiter: { 
           name: recruiterName,
-          risk: recruiter.riskLevel,
+          riskLevel: recruiter.riskLevel,
           isVerified: recruiter.isVerified
         }
       };
 
       inMemoryDB.jobs.push(job);
-
+      console.log("Job added:", job);
       res.status(200).json({ message: "Job added successfully!" });
     } catch (error) {
       console.error(error);

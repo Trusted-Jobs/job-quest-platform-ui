@@ -15,6 +15,7 @@ export default function PostJob() {
     location: "",
     salary: "",
     description: "",
+    jobId: "",
   });
   const [isTransferring, setIsTransferring] = useState(false);
   const [isTransferred, setIsTransferred] = useState(false);
@@ -31,7 +32,7 @@ export default function PostJob() {
   };
 
   const handleTransferApi = async () => {
-    const contractAddress = process.env.CONTRACT_ADDRESS || "0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036";
+    const contractAddress = process.env.CONTRACT_ADDRESS || "0x0E6be64199930b1aa1AF03C89ed7245A97d1f1Ad";
     if (!contractAddress) {
       alert("Contract address is not set. Please check your environment variables.");
       return;
@@ -72,7 +73,7 @@ export default function PostJob() {
     try {
       setIsVerifying(true);
 
-      const provider = new ethers.JsonRpcProvider(process.env.JSON_RPC_PROVIDER || "https://alfajores-forno.celo-testnet.org");
+      const provider = new ethers.JsonRpcProvider(process.env.JSON_RPC_PROVIDER || "https://forno.celo.org");
       const txReceipt = await provider.getTransactionReceipt(transactionHash); // 查詢交易回執
 
       if (!txReceipt || !txReceipt.logs) {
@@ -82,7 +83,7 @@ export default function PostJob() {
       const contractInterface = new ethers.Interface(abi);
 
       // 確保合約地址大小寫一致
-      const normalizedContractAddress = process.env.CONTRACT_ADDRESS?.toLowerCase() || "0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036".toLowerCase();
+      const normalizedContractAddress = process.env.CONTRACT_ADDRESS?.toLowerCase() || "0x0E6be64199930b1aa1AF03C89ed7245A97d1f1Ad".toLowerCase();
       const log = txReceipt.logs.find(
         (log) => log.address.toLowerCase() === normalizedContractAddress
       );
@@ -109,6 +110,7 @@ export default function PostJob() {
 
       setIsVerified(true);
       alert(`✅ Transfer verified on-chain. Job ID: ${jobId}`);
+      return jobId; 
     } catch (error) {
       console.error(error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -118,7 +120,7 @@ export default function PostJob() {
     }
   };
 
-  const handleApiSubmit = async () => {
+  const handleApiSubmit = async (data = form) => {
     try {
       const response = await fetch("/api/jobs", {
         method: "POST",
@@ -147,13 +149,19 @@ export default function PostJob() {
     form.salary &&
     form.description;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormComplete) {
-      return;
-    }
-    await handleApiSubmit();
-  };
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!isFormComplete) return;
+      if (!isVerified) {
+        const jobId = await handleVerify();
+        if (jobId) {
+          setForm((prevForm) => ({ ...prevForm, jobId }));
+          await handleApiSubmit({ ...form, jobId });
+        }
+      } else {
+        await handleApiSubmit(form);
+      }
+    };
 
   return (
     <div className="min-h-screen bg-yellow-50 font-['Press Start 2P'] text-gray-800">
