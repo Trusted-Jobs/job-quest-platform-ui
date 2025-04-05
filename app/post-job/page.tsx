@@ -1,23 +1,25 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import '@fontsource/press-start-2p';
-import TopBar from '@/components/Top-Bar';
+import React, { useState } from "react";
+import "@fontsource/press-start-2p";
+import TopBar from "@/components/Top-Bar";
 
 export default function PostJob() {
   const [form, setForm] = useState({
-    title: '',
-    company: '',
-    location: '',
-    salary: '',
-    description: ''
+    title: "",
+    company: "",
+    location: "",
+    salary: "",
+    description: "",
   });
   const [isTransferring, setIsTransferring] = useState(false);
   const [isTransferred, setIsTransferred] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const target = e.target;
     const { name, value } = target;
     setForm({ ...form, [name]: value });
@@ -28,38 +30,65 @@ export default function PostJob() {
     setTimeout(() => {
       setIsTransferring(false);
       setIsTransferred(true);
-      alert('🎉 Tokens transferred to contract!');
+      alert("🎉 Tokens transferred to contract!");
     }, 1500);
   };
 
   const handleVerify = () => {
     if (!isTransferred) {
-      alert('You must transfer first!');
+      alert("You must transfer first!");
       return;
     }
     setIsVerifying(true);
     setTimeout(() => {
       setIsVerifying(false);
       setIsVerified(true);
-      alert('✅ Transfer verified on-chain.');
+      alert("✅ Transfer verified on-chain.");
     }, 1500);
   };
 
-  const isFormComplete =
-    form.title && form.company && form.location && form.salary && form.description && isVerified;
+  const handleApiSubmit = async () => {
+    try {
+      const response = await fetch("/api/jobs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-  const handleSubmit = (e: React.FormEvent) => {
+      if (!response.ok) {
+        throw new Error("Failed to post job");
+      }
+
+      alert("🎯 Job successfully posted to the database!");
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to post job. Please try again.");
+    }
+  };
+
+  const isFormComplete =
+    form.title &&
+    form.company &&
+    form.location &&
+    form.salary &&
+    form.description &&
+    isVerified;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormComplete) {
-      alert('Please complete all fields and verify transfer.');
+      alert("Please complete all fields and verify transfer.");
       return;
     }
-    alert('🎯 Job successfully posted!');
+    await handleApiSubmit();
   };
 
   return (
     <div className="min-h-screen bg-yellow-50 font-['Press Start 2P'] text-gray-800">
-      <TopBar />
+      <TopBar /> {/* 直接在最外層 */}
+
       <div className="flex flex-col items-center justify-start p-6">
         <form
           onSubmit={handleSubmit}
@@ -69,7 +98,7 @@ export default function PostJob() {
             🎯 POST A JOB
           </h1>
 
-          {['title', 'company', 'location', 'salary'].map((field) => (
+          {["title", "company", "location", "salary"].map((field) => (
             <input
               key={field}
               name={field}
@@ -97,10 +126,10 @@ export default function PostJob() {
               className="bg-blue-900 text-white py-3 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800 disabled:opacity-50"
             >
               {isTransferring
-                ? 'Transferring...'
+                ? "Transferring..."
                 : isTransferred
-                ? '✅ Transferred'
-                : '🔁 Transfer Tokens'}
+                  ? "✅ Transferred"
+                  : "🔁 Transfer Tokens"}
             </button>
 
             <button
@@ -109,7 +138,11 @@ export default function PostJob() {
               disabled={!isTransferred || isVerifying || isVerified}
               className="bg-blue-900 text-white py-3 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800 disabled:opacity-50"
             >
-              {isVerifying ? 'Verifying...' : isVerified ? '✅ Verified' : '🔍 Verify Transfer'}
+              {isVerifying
+                ? "Verifying..."
+                : isVerified
+                  ? "✅ Verified"
+                  : "🔍 Verify Transfer"}
             </button>
           </div>
 
