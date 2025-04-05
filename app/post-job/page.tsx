@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation"; // 新增 useRouter
 import "@fontsource/press-start-2p";
 import TopBar from "@/components/Top-Bar";
+import { ethers } from "ethers";
+import { abi } from "../content/abi";
 
 export default function PostJob() {
+  const router = useRouter(); // 初始化 useRouter
   const [form, setForm] = useState({
     title: "",
     company: "",
@@ -16,6 +20,25 @@ export default function PostJob() {
   const [isTransferred, setIsTransferred] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+
+  const connectWallet = async () => {
+    try {
+      if (!window.ethereum) {
+        alert("MetaMask is not installed!");
+        return;
+      }
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setWalletAddress(accounts[0]);
+      alert(`🔗 Connected to wallet: ${accounts[0]}`);
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to connect wallet. Please try again.");
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -25,26 +48,98 @@ export default function PostJob() {
     setForm({ ...form, [name]: value });
   };
 
-  const handleTransfer = () => {
-    setIsTransferring(true);
-    setTimeout(() => {
-      setIsTransferring(false);
-      setIsTransferred(true);
-      alert("🎉 Tokens transferred to contract!");
-    }, 1500);
-  };
-
-  const handleVerify = () => {
-    if (!isTransferred) {
-      alert("You must transfer first!");
+  const handleTransferApi = async () => {
+    if (!walletAddress) {
+      alert("Please connect your wallet first!");
       return;
     }
-    setIsVerifying(true);
-    setTimeout(() => {
-      setIsVerifying(false);
+
+    const contractAddress = process.env.CONTRACT_ADDRESS || "0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036";
+    if (!contractAddress) {
+      alert("Contract address is not set. Please check your environment variables.");
+      return;
+    }
+
+    try {
+      setIsTransferring(true);
+
+      const provider = new ethers.BrowserProvider(window.ethereum!);
+      const signer = await provider.getSigner();
+
+      const contract = new ethers.Contract(contractAddress, abi, signer);
+
+      const tx = await contract.depositJob({
+        value: ethers.parseEther(form.salary || "0.01"),
+      });
+
+      await tx.wait();
+
+      setTransactionHash(tx.hash);
+      setIsTransferred(true);
+      alert("🎉 Tokens transferred to contract!");
+      console.log("Transaction:", tx);
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to transfer tokens. Please try again.");
+    } finally {
+      setIsTransferring(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    if (!transactionHash) {
+      alert("No transaction hash found. Please transfer tokens first.");
+      return;
+    }
+
+    try {
+      setIsVerifying(true);
+
+      const provider = new ethers.JsonRpcProvider(process.env.JSON_RPC_PROVIDER || "https://alfajores-forno.celo-testnet.org");
+      const txReceipt = await provider.getTransactionReceipt(transactionHash); // 查詢交易回執
+
+      if (!txReceipt || !txReceipt.logs) {
+        throw new Error("No logs found in transaction receipt.");
+      }
+
+      const contractInterface = new ethers.Interface(abi);
+
+      // 確保合約地址大小寫一致
+      const normalizedContractAddress = process.env.CONTRACT_ADDRESS?.toLowerCase() || "0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036".toLowerCase();
+      const log = txReceipt.logs.find(
+        (log) => log.address.toLowerCase() === normalizedContractAddress
+      );
+
+      if (!log) {
+        console.error("Logs found:", txReceipt.logs);
+        throw new Error("No JobDeposited event found in transaction logs.");
+      }
+
+      const parsedLog = contractInterface.parseLog(log);
+      if (!parsedLog) {
+        throw new Error("Failed to parse log. Parsed log is null.");
+      }
+
+      // 提取事件數據
+      const jobId = parsedLog.args.jobId.toString();
+      const recruiter = parsedLog.args.recruiter;
+      const reward = parsedLog.args.reward.toString();
+      const deposit = parsedLog.args.deposit.toString();
+
+      console.log("Parsed Log:", { jobId, recruiter, reward, deposit });
+
+      // 更新表單
+      setForm((prevForm) => ({ ...prevForm, jobId }));
+
       setIsVerified(true);
-      alert("✅ Transfer verified on-chain.");
-    }, 1500);
+      alert(`✅ Transfer verified on-chain. Job ID: ${jobId}`);
+    } catch (error) {
+      console.error(error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      alert(`❌ Failed to verify transfer: ${errorMessage}`);
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const handleApiSubmit = async () => {
@@ -61,7 +156,8 @@ export default function PostJob() {
         throw new Error("Failed to post job");
       }
 
-      alert("🎯 Job successfully posted to the database!");
+      alert("🎯 Job successfully posted!");
+      router.push("/job-listing");
     } catch (error) {
       console.error(error);
       alert("❌ Failed to post job. Please try again.");
@@ -73,13 +169,11 @@ export default function PostJob() {
     form.company &&
     form.location &&
     form.salary &&
-    form.description &&
-    isVerified;
+    form.description;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormComplete) {
-      alert("Please complete all fields and verify transfer.");
       return;
     }
     await handleApiSubmit();
@@ -119,17 +213,26 @@ export default function PostJob() {
 
           {/* Token transfer & verify buttons */}
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+            {/* Connect Wallet Button */}
+            <button
+              onClick={connectWallet}
+              disabled={!!walletAddress}
+              className="bg-blue-900 text-white py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800 disabled:opacity-50"
+            >
+              🔗 Connect Wallet
+            </button>
+
             <button
               type="button"
-              onClick={handleTransfer}
-              disabled={isTransferring || isTransferred}
+              onClick={handleTransferApi}
+              disabled={!walletAddress || isTransferring || isTransferred}
               className="bg-blue-900 text-white py-3 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800 disabled:opacity-50"
             >
               {isTransferring
                 ? "Transferring..."
                 : isTransferred
-                  ? "✅ Transferred"
-                  : "🔁 Transfer Tokens"}
+                ? "✅ Transferred"
+                : "🔁 Transfer Tokens"}
             </button>
 
             <button
@@ -141,8 +244,8 @@ export default function PostJob() {
               {isVerifying
                 ? "Verifying..."
                 : isVerified
-                  ? "✅ Verified"
-                  : "🔍 Verify Transfer"}
+                ? "✅ Verified"
+                : "🔍 Verify Transfer"}
             </button>
           </div>
 

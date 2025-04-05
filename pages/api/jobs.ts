@@ -13,7 +13,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const job = req.body;
 
-      // 新增工作資料
       inMemoryDB.jobs.push(job);
 
       res.status(200).json({ message: "Job added successfully!" });
