@@ -3,13 +3,22 @@
 import React from 'react';
 import Link from 'next/link';
 import '@fontsource/press-start-2p';
+import Image from 'next/image';
 
 const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-yellow-50 flex flex-col items-center justify-center font-['Press Start 2P'] p-6 text-center text-gray-800">
-      <h1 className="text-2xl md:text-4xl text-blue-900 mb-6 border-b-4 border-blue-900 pb-2">
+      <Image
+        src="/trusted-jobs-banner.png"
+        alt="Trusted Jobs Banner"
+        width={800}
+        height={400}
+        className="mb-6 shadow-[4px_4px_0px_black] border-4 border-blue-900"
+      />
+
+      {/* <h1 className="text-2xl md:text-4xl text-blue-900 mb-6 border-b-4  pb-2">
         🧱 JOB QUEST PLATFORM
-      </h1>
+      </h1> */}
 
       <p className="max-w-2xl text-[10px] md:text-xs leading-loose mb-8">
         Welcome to a super-safe job platform where you can safely post, browse, and apply for jobs.
