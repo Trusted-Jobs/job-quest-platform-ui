@@ -23,7 +23,7 @@ const inMemoryDB: InMemoryDB = {
       isVerified: ["nationality"],
       riskLevel: "LOW",
       myJobs: [],
-      myPosts: [],
+      myPosts: [1, 2],
     },
     {
       id: 3,
@@ -33,7 +33,7 @@ const inMemoryDB: InMemoryDB = {
       isVerified: [],
       riskLevel: "HIGH",
       myJobs: [1, 2],
-      myPosts: [],
+      myPosts: [3],
     },
   ],
   jobs: [
