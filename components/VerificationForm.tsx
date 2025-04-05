@@ -118,12 +118,10 @@ export default function VerificationForm() {
                 </div>
 
                 {selfApp ? (
-                    <SelfQRcodeWrapper
+                    <ClientQRWrapper
                     key={JSON.stringify(selfApp)}
                     selfApp={selfApp}
-                    type="websocket"
                     onSuccess={handleVerificationSuccess}
-                    darkMode={false}
                     />
                     ) : (
                     <p>Loading QR code...</p>
