@@ -8,17 +8,26 @@ import "@fontsource/press-start-2p";
 export default function TopBar() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isVerified, setIsVerified] = useState(false); // mock verification status
+  const [isVerified, setIsVerified] = useState(false);
 
-  // 模擬驗證狀態（可接後端 API）
   useEffect(() => {
-    const verified = localStorage.getItem("isVerified") === "true";
-    setIsVerified(verified);
+    const isVerifiedLength = parseInt(document.cookie.replace(/(?:(?:^|.*;\s*)isVerifiedLength\s*\=\s*([^;]*).*$)|^.*$/, "$1")) || 0;
+    setIsVerified(isVerifiedLength > 0);
   }, []);
 
-  const handleLogout = () => {
-    alert("Logged out");
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/logout", { method: "POST" });
+      if (response.ok) {
+        alert("Logged out");
+        router.push("/login");
+      } else {
+        alert("Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("An error occurred during logout");
+    }
   };
 
   const navLinks = [
