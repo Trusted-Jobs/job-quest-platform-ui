@@ -27,11 +27,15 @@ export default function JobListings() {
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedRecruiter, setSelectedRecruiter] = useState<Recruiter | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     fetch("/api/jobs")
       .then((response) => response.json())
       .then((data) => setJobs(data));
+
+    const userRole = getCookie("name");
+    setIsAdmin(userRole === "Admin");
   }, []);
 
   const handleApply = async (jobId: number, status: string = "applied") => {
@@ -106,6 +110,74 @@ export default function JobListings() {
     }
   };
 
+  const handleArbitrate = async (jobId: number, action: "slashToRecruiter" | "slashToApplicant") => {
+    try {
+      if (!window.ethereum) {
+        alert("Please install MetaMask wallet!");
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum!);
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+
+      const contractAddress = process.env.CONTRACT_ADDRESS || "0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036"; // Replace with actual contract address
+      if (!contractAddress) {
+        alert("Contract address is not set. Please check your environment variables!");
+        return;
+      }
+
+      const contract = new ethers.Contract(contractAddress, abi, signer);
+
+      // Check if the user is the arbitrator
+      const arbitrator = await contract.arbitrator();
+      if (userAddress.toLowerCase() !== arbitrator.toLowerCase()) {
+        alert("❌ You are not authorized to perform arbitration.");
+        return;
+      }
+
+      let result;
+      if (action === "slashToRecruiter") {
+        result = await contract.slashToRecruiter(jobId);
+      } else if (action === "slashToApplicant") {
+        result = await contract.slashToApplicant(jobId);
+      }
+
+      console.log("Arbitration result:", result);
+
+      // Update job status to "closed"
+      const updateJobStatusResponse = await fetch("/api/updateJobStatus", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ jobId, status: "closed" }),
+      });
+
+      if (!updateJobStatusResponse.ok) {
+        throw new Error("Failed to update job status");
+      }
+
+      const { job: updatedJob } = await updateJobStatusResponse.json();
+
+      // Update the local jobs state with the updated job
+      setJobs((prevJobs) =>
+        prevJobs.map((job) => (job.id === updatedJob.id ? { ...job, status: updatedJob.status } : job))
+      );
+
+      alert(`🎉 Arbitration successful! Action: ${action}. Job status updated to "closed".`);
+    } catch (error) {
+      console.error("Arbitration failed:", error);
+      if (typeof error === "object" && error !== null && "reason" in error) {
+        alert(`❌ Arbitration failed: ${(error as any).reason}`);
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        alert(`❌ Arbitration failed: ${(error as any).message}`);
+      } else {
+        alert("❌ Arbitration failed: An unknown error occurred.");
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-yellow-50 font-['Press Start 2P'] text-gray-800">
       <TopBar />
@@ -127,17 +199,36 @@ export default function JobListings() {
               <p className="text-gray-800">
                 👤 Recruiter: <button onClick={() => setSelectedRecruiter(job.recruiter)} className="underline text-blue-700 hover:text-blue-900">{job.recruiter.name}</button>
               </p>
-              <button
-                onClick={() => handleApply(job.id)}
-                disabled={job.status !== "new"} // Disable button if status is not "new"
-                className={`mt-4 py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] ${
-                  job.status === "new"
-                    ? "bg-blue-900 text-white hover:bg-blue-800"
-                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
-                }`}
-              >
-                🎯 APPLY
-              </button>
+              {isAdmin ? (
+                job.status === "completed" && (
+                  <div className="mt-4 flex gap-4">
+                    <button
+                      onClick={() => handleArbitrate(job.id, "slashToRecruiter")}
+                      className="py-2 px-4 bg-green-500 text-white border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-green-400"
+                    >
+                      💰 Refund to Recruiter
+                    </button>
+                    <button
+                      onClick={() => handleArbitrate(job.id, "slashToApplicant")}
+                      className="py-2 px-4 bg-red-500 text-white border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-red-400"
+                    >
+                      💰 Pay to Applicant
+                    </button>
+                  </div>
+                )
+              ) : (
+                <button
+                  onClick={() => handleApply(job.id)}
+                  disabled={job.status !== "new"} // Disable button if status is not "new"
+                  className={`mt-4 py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] ${
+                    job.status === "new"
+                      ? "bg-blue-900 text-white hover:bg-blue-800"
+                      : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  }`}
+                >
+                  🎯 APPLY
+                </button>
+              )}
             </div>
           ))}
         </div>
