@@ -63,7 +63,7 @@ Funds are locked until one of the following occurs:
 
 ### 🧪 Development
 
-This contract is deployed on the Celo Alfajores testnet. You can deploy and test using Remix with the following configuration:
+This contract is deployed on the Celo Alfajores testnet (for testing). You can deploy and test using Remix with the following configuration:
 
 #### 🛠 Remix Setup
 
