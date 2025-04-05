@@ -128,7 +128,6 @@ export default function PostJob() {
 
       console.log("Parsed Log:", { jobId, recruiter, reward, deposit });
 
-      // 更新表單
       setForm((prevForm) => ({ ...prevForm, jobId }));
 
       setIsVerified(true);

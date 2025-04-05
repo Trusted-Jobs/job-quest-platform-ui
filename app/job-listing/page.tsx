@@ -22,6 +22,7 @@ export default function JobListings() {
     location: string;
     salary: string;
     recruiter: Recruiter;
+    status?: string;
   };
 
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -33,7 +34,7 @@ export default function JobListings() {
       .then((data) => setJobs(data));
   }, []);
 
-  const handleApply = async (jobId: number) => {
+  const handleApply = async (jobId: number, status: string = "applied") => {
     try {
       if (!window.ethereum) {
         alert("Please install MetaMask wallet!");
@@ -79,7 +80,26 @@ export default function JobListings() {
         throw new Error("Failed to update user data");
       }
 
-      alert("🎉 Application successful!");
+      const updateJobStatusResponse = await fetch("/api/updateJobStatus", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ jobId, status }),
+      });
+
+      if (!updateJobStatusResponse.ok) {
+        throw new Error("Failed to update job status");
+      }
+
+      const { job: updatedJob } = await updateJobStatusResponse.json();
+
+      // Update the local jobs state with the updated job
+      setJobs((prevJobs) =>
+        prevJobs.map((job) => (job.id === updatedJob.id ? { ...job, status: updatedJob.status } : job))
+      );
+
+      alert(`🎉 Application successful! Job status updated to ${status}`);
     } catch (error) {
       console.error("Application failed:", error);
       alert("❌ Application failed. This job has already been applied.");
@@ -109,7 +129,12 @@ export default function JobListings() {
               </p>
               <button
                 onClick={() => handleApply(job.id)}
-                className="mt-4 bg-blue-900 text-white py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800"
+                disabled={job.status !== "new"} // Disable button if status is not "new"
+                className={`mt-4 py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] ${
+                  job.status === "new"
+                    ? "bg-blue-900 text-white hover:bg-blue-800"
+                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                }`}
               >
                 🎯 APPLY
               </button>

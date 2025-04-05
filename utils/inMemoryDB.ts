@@ -11,6 +11,9 @@ const inMemoryDB: InMemoryDB = {
       email: "admin@example.com",
       password: "9999",
       isVerified: ["nationality"],
+      riskLevel: "LOW",
+      myJobs: [],
+      myPosts: [],
     },
     {
       id: 2,
@@ -18,6 +21,9 @@ const inMemoryDB: InMemoryDB = {
       email: "john.doe@example.com",
       password: "password123",
       isVerified: ["nationality"],
+      riskLevel: "LOW",
+      myJobs: [],
+      myPosts: [],
     },
     {
       id: 3,
@@ -25,6 +31,9 @@ const inMemoryDB: InMemoryDB = {
       email: "jane.smith@example.com",
       password: "securepass456",
       isVerified: [],
+      riskLevel: "HIGH",
+      myJobs: [],
+      myPosts: [],
     },
   ],
   jobs: [
@@ -35,6 +44,7 @@ const inMemoryDB: InMemoryDB = {
       company: "PixelSoft",
       location: "Remote",
       salary: "$3000/month",
+      status: "applied",
       recruiter: {
         name: "John Doe",
         riskLevel: "LOW",
@@ -48,6 +58,7 @@ const inMemoryDB: InMemoryDB = {
       company: "RetroWorks",
       location: "New York",
       salary: "$4000/month",
+      status: "applied",
       recruiter: {
         name: "John Doe",
         riskLevel: "LOW",
@@ -61,6 +72,7 @@ const inMemoryDB: InMemoryDB = {
       company: "BitQuest",
       location: "Remote",
       salary: "$2500/month",
+      status: "new",
       recruiter: {
         name: "Jane Smith",
         riskLevel: "HIGH",
