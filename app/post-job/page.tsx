@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation"; // 新增 useRouter
+import { useRouter } from "next/navigation";
 import "@fontsource/press-start-2p";
 import TopBar from "@/components/Top-Bar";
 import { ethers } from "ethers";
 import { abi } from "../content/abi";
+import { getCookie } from "cookies-next"; 
 
 export default function PostJob() {
-  const router = useRouter(); // 初始化 useRouter
+  const router = useRouter(); 
   const [form, setForm] = useState({
     title: "",
     company: "",
@@ -122,6 +123,12 @@ export default function PostJob() {
 
   const handleApiSubmit = async (data = form) => {
     try {
+      const name = getCookie("name"); // 從 cookies 中取得 name
+
+      if (!name) {
+        throw new Error("User name not found in cookies");
+      }
+
       const response = await fetch("/api/jobs", {
         method: "POST",
         headers: {
@@ -132,6 +139,22 @@ export default function PostJob() {
 
       if (!response.ok) {
         throw new Error("Failed to post job");
+      }
+
+      // Call updateUser API to update myPosts
+      const updateUserResponse = await fetch("/api/updateUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name, 
+          myPosts: [data.jobId],
+        }),
+      });
+
+      if (!updateUserResponse.ok) {
+        throw new Error("Failed to update user data");
       }
 
       alert("🎯 Job successfully posted!");
