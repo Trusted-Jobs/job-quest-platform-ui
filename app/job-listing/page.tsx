@@ -1,56 +1,35 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import '@fontsource/press-start-2p';
-import TopBar from '@/components/Top-Bar';
-
-const jobs = [
-  {
-    id: 1,
-    title: 'Frontend Developer',
-    company: 'PixelSoft',
-    location: 'Remote',
-    salary: '$3000/month',
-    recruiter: {
-      name: 'Alice from PixelSoft',
-      riskLevel: 'MEDIUM',
-      creditRating: 3
-    }
-  },
-  {
-    id: 2,
-    title: 'Game Designer',
-    company: 'RetroWorks',
-    location: 'New York',
-    salary: '$4000/month',
-    recruiter: {
-      name: 'Bob from RetroWorks',
-      riskLevel: 'LOW',
-      creditRating: 5
-    }
-  },
-  {
-    id: 3,
-    title: 'QA Tester',
-    company: 'BitQuest',
-    location: 'Remote',
-    salary: '$2500/month',
-    recruiter: {
-      name: 'Carol from BitQuest',
-      riskLevel: 'HIGH',
-      creditRating: 2
-    }
-  }
-];
+import React, { useState, useEffect } from "react";
+import "@fontsource/press-start-2p";
+import TopBar from "@/components/Top-Bar";
 
 export default function JobListings() {
   type Recruiter = {
     name: string;
     riskLevel: string;
     creditRating: number;
+    isVerified: string[];
   };
 
+  type Job = {
+    id: number;
+    title: string;
+    company: string;
+    location: string;
+    salary: string;
+    recruiter: Recruiter;
+  };
+
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedRecruiter, setSelectedRecruiter] = useState<Recruiter | null>(null);
+
+  useEffect(() => {
+    fetch("/api/jobs")
+      .then((response) => response.json())
+      .then((data) => setJobs(data));
+  }, []);
+
   return (
     <div className="min-h-screen bg-yellow-50 font-['Press Start 2P'] text-gray-800">
       <TopBar />
@@ -70,13 +49,7 @@ export default function JobListings() {
               <p className="text-gray-800">🌍 {job.location}</p>
               <p className="text-gray-800">💰 {job.salary}</p>
               <p className="text-gray-800">
-                👤 Recruiter:{' '}
-                <button
-                  onClick={() => setSelectedRecruiter(job.recruiter)}
-                  className="underline text-blue-700 hover:text-blue-900"
-                >
-                  {job.recruiter.name}
-                </button>
+                👤 Recruiter: <button onClick={() => setSelectedRecruiter(job.recruiter)} className="underline text-blue-700 hover:text-blue-900">{job.recruiter.name}</button>
               </p>
               <button className="mt-4 bg-blue-900 text-white py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800">
                 🎯 APPLY
@@ -90,27 +63,13 @@ export default function JobListings() {
         <div className="fixed top-10 left-1/2 transform -translate-x-1/2 z-50">
           <div className="bg-white border-4 border-blue-900 p-6 rounded-none shadow-[6px_6px_0px_black] max-w-md w-full text-center text-[10px]">
             <h1 className="text-xl text-blue-900 mb-6 border-b-4 border-blue-900 pb-2">
-              🧮 RISK & CREDIT
+              🧮 RISK & VERIFIED
             </h1>
             <p className="mb-4">👤 Recruiter: {selectedRecruiter.name}</p>
             <p className="mb-4">⚠️ Risk Level: {selectedRecruiter.riskLevel}</p>
-
-            <div className="mb-4">
-              <p className="mb-2">⭐ Credit Rating:</p>
-              <div className="flex justify-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span
-                    key={star}
-                    className={
-                      star <= selectedRecruiter.creditRating ? 'text-yellow-500' : 'text-gray-400'
-                    }
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-            </div>
-
+            <p className="mb-4">
+              ✅ Verified: {selectedRecruiter.isVerified.length > 0 ? selectedRecruiter.isVerified.join(", ") : "None"}
+            </p>
             <button
               onClick={() => setSelectedRecruiter(null)}
               className="mt-4 bg-blue-900 text-white py-2 px-4 border-4 border-black rounded-none shadow-[4px_4px_0px_black] hover:bg-blue-800"
