@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // 新增使用者資料
-      inMemoryDB.users.push({ email, password, isVerify: [] });
+      inMemoryDB.users.push({ email, password, isVerify: [], riskLevel: "HIGH", myJobs: [], myPosts: [] });
 
       res.status(201).json({ message: "Registration successful!" });
     } catch (error) {
