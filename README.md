@@ -2,7 +2,7 @@
 
 ## 🔗 Quick Links
 
-- [Demo Page](https://job-quest-platform.vercel.app/)
+- [Demo Page](https://trusted-jobs-ui.vercel.app/)
 - [Platform Workflow](#-platform-workflow)
 - [Framework](#-framework)
 - [Smart Contract Logic](#-smart-contract-logic-jobescrowsol)
