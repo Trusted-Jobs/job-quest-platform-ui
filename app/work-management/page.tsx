@@ -32,7 +32,7 @@ export default function WorkManagement() {
       const provider = new ethers.BrowserProvider(window.ethereum!);
       const signer = await provider.getSigner();
 
-      const contractAddress = process.env.CONTRACT_ADDRESS || '0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036'; // Replace with actual contract address
+      const contractAddress = process.env.CONTRACT_ADDRESS || '0x0E6be64199930b1aa1AF03C89ed7245A97d1f1Ad'; // Replace with actual contract address
       if (!contractAddress) {
         alert('Contract address is not set. Please check your environment variables!');
         return;
@@ -82,7 +82,7 @@ export default function WorkManagement() {
       const provider = new ethers.BrowserProvider(window.ethereum!);
       const signer = await provider.getSigner();
 
-      const contractAddress = process.env.CONTRACT_ADDRESS || '0xBF7F45091686b4d5c4f9184D1Fa30A6731a49036'; // Replace with actual contract address
+      const contractAddress = process.env.CONTRACT_ADDRESS || '0x0E6be64199930b1aa1AF03C89ed7245A97d1f1Ad'; // Replace with actual contract address
       if (!contractAddress) {
         alert('Contract address is not set. Please check your environment variables!');
         return;
