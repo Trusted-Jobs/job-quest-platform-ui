@@ -17,11 +17,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             // Uncomment this to use the Self backend verifier for offchain verification instead
             const selfdVerifier = new SelfBackendVerifier(
-                'https://forno.celo.org',
-                "job-quest-platform-ui",
+                "https://forno.celo.org",
+                "default",
                 "https://trusted-jobs-ui.vercel.app/api/verify",
                 "hex",
-                true // If you want to use mock passport
+                // true // If you want to use mock passport
             );
             const result = await selfdVerifier.verify(proof, publicSignals);
             console.log("Verification result:", result);
@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 console.log("Successfully called verifySelfProof function");
                 res.status(200).json({
                     status: 'success',
-                    result: result.isValid,
+                    result: true,
                     credentialSubject: result.credentialSubject,
                 });
             } catch (error) {

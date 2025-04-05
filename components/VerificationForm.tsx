@@ -6,17 +6,14 @@ import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
-import { SelfApp, SelfAppBuilder } from "@selfxyz/qrcode";
+import SelfQRcodeWrapper, { SelfApp, SelfAppBuilder } from "@selfxyz/qrcode";
 import ClientQRWrapper from "@/components/ClientQRWrapper";
-
-import "@fontsource/press-start-2p";
 
 export default function VerificationForm() {
     const [form, setForm] = useState({
         name: "",
         disclosures: {
             nationality: false,
-            minimumAge: 18,
             ofac: false,
             name: true,
         },
@@ -32,13 +29,13 @@ export default function VerificationForm() {
 
         const selfApp = new SelfAppBuilder({
             appName: "Verification Platform",
-            scope: "job-quest-platform-ui",
+            scope: "default",
             endpoint: "https://trusted-jobs-ui.vercel.app/api/verify",
             logoBase64: "https://i.imgur.com/Rz8B3s7.png",
             userId: uuidv4(),
             disclosures: form.disclosures,
             devMode: true,
-        }).build();
+        } as Partial<SelfApp>).build();
 
         setSelfApp(selfApp);
     }, [form.disclosures]);
@@ -102,7 +99,7 @@ export default function VerificationForm() {
                 <div>
                     <label className="block mb-1">✅ Select items to verify</label>
                     <div className="space-y-2">
-                        {["nationality", "age", "sanctioned"].map((key) => (
+                        {["nationality", "minimumAge", "ofac"].map((key) => (
                             <div key={key}>
                                 <input
                                     type="checkbox"
@@ -120,12 +117,17 @@ export default function VerificationForm() {
                     </div>
                 </div>
 
-                {selfApp && typeof window !== "undefined" && (
-                    <div className="mt-4">
-                        <ClientQRWrapper selfApp={selfApp} onSuccess={handleVerificationSuccess} />
-                    </div>
-                )}
-
+                {selfApp ? (
+                    <SelfQRcodeWrapper
+                    key={JSON.stringify(selfApp)}
+                    selfApp={selfApp}
+                    type="websocket"
+                    onSuccess={handleVerificationSuccess}
+                    darkMode={false}
+                    />
+                    ) : (
+                    <p>Loading QR code...</p>
+                    )}
                 <button
                     type="button"
                     onClick={() => alert("Please complete verification via QR code.")}
