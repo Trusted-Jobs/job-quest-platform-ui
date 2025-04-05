@@ -168,7 +168,13 @@ export default function JobListings() {
       alert(`🎉 Arbitration successful! Action: ${action}. Job status updated to "closed".`);
     } catch (error) {
       console.error("Arbitration failed:", error);
-      alert(`❌ Arbitration failed: ${error.reason || error.message}`);
+      if (typeof error === "object" && error !== null && "reason" in error) {
+        alert(`❌ Arbitration failed: ${(error as any).reason}`);
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        alert(`❌ Arbitration failed: ${(error as any).message}`);
+      } else {
+        alert("❌ Arbitration failed: An unknown error occurred.");
+      }
     }
   };
 
